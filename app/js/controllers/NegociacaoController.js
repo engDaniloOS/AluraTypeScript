@@ -1,6 +1,6 @@
-System.register(["../views/NegociacoesView", "../views/MensagemView", "../models/Negociacoes", "../models/Negociacao"], function (exports_1, context_1) {
+System.register(["../views/NegociacoesView", "../views/MensagemView", "../models/Negociacoes", "../models/Negociacao", "../models/Enuns/DiaDaSemana"], function (exports_1, context_1) {
     "use strict";
-    var NegociacoesView_1, MensagemView_1, Negociacoes_1, Negociacao_1, NegociacaoController;
+    var NegociacoesView_1, MensagemView_1, Negociacoes_1, Negociacao_1, DiaDaSemana_1, NegociacaoController;
     var __moduleName = context_1 && context_1.id;
     return {
         setters: [
@@ -15,6 +15,9 @@ System.register(["../views/NegociacoesView", "../views/MensagemView", "../models
             },
             function (Negociacao_1_1) {
                 Negociacao_1 = Negociacao_1_1;
+            },
+            function (DiaDaSemana_1_1) {
+                DiaDaSemana_1 = DiaDaSemana_1_1;
             }
         ],
         execute: function () {
@@ -30,7 +33,12 @@ System.register(["../views/NegociacoesView", "../views/MensagemView", "../models
                 }
                 adiciona(event) {
                     event.preventDefault();
-                    const negociacao = new Negociacao_1.Negociacao(new Date(this._inputData.val().toString().replace('-', ',')), parseInt(this._inputQuantidade.val().toString()), parseFloat(this._inputValor.val().toString()));
+                    let date = new Date(this._inputData.val().toString().replace('-', ','));
+                    if (date.getDay() == DiaDaSemana_1.DiaDaSemana.Sabado || date.getDay() == DiaDaSemana_1.DiaDaSemana.Domingo) {
+                        this._mensagemView.update('Somente negociações em dias úteis sao permitidas');
+                        return;
+                    }
+                    const negociacao = new Negociacao_1.Negociacao(date, parseInt(this._inputQuantidade.val().toString()), parseFloat(this._inputValor.val().toString()));
                     this._negociacoes.adiciona(negociacao);
                     this._negociacoes.paraArray().forEach(negociacao => console.log(negociacao));
                     this._negociacoesView.update(this._negociacoes);

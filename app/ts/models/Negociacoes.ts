@@ -5,7 +5,7 @@ export class Negociacoes{
     private _negociacoes: Negociacao[] = []
 
     paraArray(): Negociacao[]{
-        return [].concat(this._negociacoes);
+        return ([] as Negociacao[]).concat(this._negociacoes);
     }
 
     adiciona(negociacao: Negociacao) : void{
