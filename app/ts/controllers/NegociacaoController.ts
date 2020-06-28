@@ -5,6 +5,8 @@ import { Negociacao } from '../models/Negociacao';
 import { DiaDaSemana } from '../models/Enuns/DiaDaSemana';
 import { logarTempoDeExecucao } from '../helpers/index';
 import { domInject } from '../helpers/decorators/domInject';
+import { NegociacaoService } from '../services/NegociacaoService';
+import { throttle } from '../helpers/decorators/throttle';
 
 export class NegociacaoController{
 
@@ -22,14 +24,13 @@ export class NegociacaoController{
     private _negociacoesView = new NegociacoesView('#negociacoesView');
     private _mensagemView = new MensagemView('#mensagemView');
 
-    constructor(){
+    constructor(private service: NegociacaoService){
         this._negociacoesView.update(this._negociacoes);
     }
 
     @logarTempoDeExecucao()
-    adiciona(event: Event) {
-        event.preventDefault();
-        
+    @throttle()
+    adiciona() {
         let date = new Date(this._inputData.val().toString().replace('-', ','));
         
         if(date.getDay() == DiaDaSemana.Sabado || date.getDay() == DiaDaSemana.Domingo){
@@ -44,11 +45,32 @@ export class NegociacaoController{
 
         this._negociacoes.adiciona(negociacao);
 
-        this._negociacoes.paraArray().forEach(
-            negociacao => console.log(negociacao)
-        ); 
+        this._negociacoes
+            .paraArray()
+            .forEach(negociacao => console.log(negociacao)); 
 
         this._negociacoesView.update(this._negociacoes);
         this._mensagemView.update('Negociação adicionada com sucesso!');
-    } 
+    }
+    
+    @throttle()
+    async importaDados(){
+
+        try{
+            let dados : Negociacao[] | void = await this.service.importarNegociacoes();
+
+            if (!dados) return;
+    
+            this._negociacoes = new Negociacoes();
+    
+            dados.forEach((dado: Negociacao) => this._negociacoes.adiciona(dado));
+    
+            this._negociacoesView.update(this._negociacoes);
+            this._mensagemView.update('Importação realizada com sucesso');
+
+        }catch(e){
+            this._mensagemView.update(e.message);
+        }
+
+    }
 }

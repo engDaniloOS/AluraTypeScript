@@ -1,5 +1,9 @@
 import { NegociacaoController } from './controllers/NegociacaoController';
+import { NegociacaoService } from './services/NegociacaoService';
 
-const controller = new NegociacaoController();
+const negociacaoService = new NegociacaoService();
 
-$('.form').submit(controller.adiciona.bind(controller));  
+const controller = new NegociacaoController(negociacaoService);
+
+$('.form').submit(controller.adiciona.bind(controller));
+$('#botao-importa').click(controller.importaDados.bind(controller));
